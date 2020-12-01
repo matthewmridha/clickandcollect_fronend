@@ -1,25 +1,67 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, {useState, useEffect, useContext} from 'react';
 import './App.css';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import Dashboard from './components/dashboard';
+import { useCookies } from 'react-cookie'
+import { URLContext } from '.'
 
 function App() {
+  const [authToken, setAuthToken, removeAuthToken] = useCookies(["auth-token"])
+  const [username, setUsername, removeUsername] = useCookies(["username"])
+  const [isHost, setIsHost] = useState(false)
+  const APIURL = useContext(URLContext)
+
+  const checkIfHost = () => {
+    fetch(`${APIURL.URL}/host/`,{
+      method : "GET",
+      headers : {
+        "Content-Type" : "application/json",
+        'Accept': 'application/json',
+        "Authorization" : `Token ${authToken["auth-token"]}`
+      }
+    })
+    .then(
+      (res) => {
+        let status = res.status
+        if(status === parseInt(200)){
+          setIsHost(true)
+        }else{
+          setIsHost(false)
+        }
+      }
+    )
+    .catch(error => console.log(error))
+  }
+  const getUserName = () => {
+    fetch(`${APIURL.URL}/username/`,{
+      method : "GET",
+      headers : {
+        "Content-Type" : "application/json",
+        'Accept': 'application/json',
+        "Authorization" : `Token ${authToken["auth-token"]}`
+      }
+    })
+    .then(res => res.json())
+    .then(res => setUsername("username", res[0]["name"]))
+    .catch(error => console.log(error))
+  }
+  useEffect(()=>{
+    getUserName()
+  },[]);
+  useEffect(()=>{
+    checkIfHost()
+  },[]);
+  useEffect(()=>{
+    if(!authToken["auth-token"]){
+      window.location.href = '/'
+    }
+  }, [authToken])
+  const logout = () => {
+    removeAuthToken(["auth-token"]);
+    removeUsername(["username"])
+  }
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Dashboard token={authToken["auth-token"]} isHost={isHost} logout={logout}/>
   );
 }
 
