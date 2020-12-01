@@ -94,7 +94,9 @@ function InvoiceDetails(props){
                 }
             }
         }
-        alert(`Please collect BDT ${total - removeAmount} from customer`)
+        if ( props.invoice.payment_method.toUpperCase() === "PENDING PAYMENT") {
+            alert(`Please collect BDT ${total - removeAmount} from customer`)
+        }
         const orderNumber = props.invoice.order_number
         trackPromise(
             fetch(`${APIURL.URL}/partial_delivery/returnItems/`,{
