@@ -13,45 +13,48 @@ import { trackPromise } from 'react-promise-tracker';
 import { URLContext } from '..'
 
 
-function InvoiceDetails(props){
-    const [authToken] = useCookies(["auth-token"])
-    const token = authToken["auth-token"]
-    const [products, setProducts] = useState([])
-    const [returnProducts, setReturnProducts] = useState([])
-    const [total, setTotal] = useState("")
-    const [returnTotal, setReturnTotal] = useState(0)
-    const [selectCancel, setSelectCancel] = useState(false)
-    const APIURL = useContext(URLContext)
+function InvoiceDetails( props ) {
+    const [ authToken] = useCookies( [ "auth-token" ] )
+    const token = authToken[ "auth-token" ]
+    const [ products, setProducts ] = useState( [] )
+    const [ returnProducts, setReturnProducts] = useState( [] )
+    const [ total, setTotal] = useState( "" )
+    const [ returnTotal, setReturnTotal] = useState( 0 )
+    const [ selectCancel, setSelectCancel ] = useState( false )
+    const APIURL = useContext( URLContext )
+    
         
-    useEffect(()=>{
-        let total = props.products && props.products.map(product => {
+    useEffect( () => {
+        let total = props.products && props.products.map( product => {
             return product.total
-        }).reduce((total, current) =>{
-            return parseInt(parseInt(total) + parseInt(current)).toFixed(2)
+        }).reduce(( total, current ) => {
+            return parseInt( parseInt( total ) + parseInt( current ) ).toFixed( 2 )
         }, 0)
-        setTotal(total)
-    },[props.products])
+        setTotal( total )
+    },[ props.products ] )
 
-    useEffect(()=>{
-        setProducts(props.products)
-    },[props.products])
+    useEffect( ()=> {
+        setProducts( props.products )
+    }, [ props.products ] )
 
     const selectPartial = () => {
-        setReturnProducts([])
-        setSelectCancel(!selectCancel)
+        setReturnProducts( [] )
+        setSelectCancel( !selectCancel )
     }
 
+    /*
     const removeItem = ( x ) => {
-        if ( document.getElementById(x).checked ) {
-            setReturnProducts([...returnProducts, x])
+        if ( document.getElementById( x ).checked ) {
+            setReturnProducts([ ...returnProducts, x ])
         } else {
-            for( var i = 0; i < returnProducts.length; i++ ){ 
-                if ( returnProducts[i] === x ) { 
+            for( var i = 0; i < returnProducts.length; i++ ) { 
+                if ( returnProducts[ i ] === x ) { 
                     returnProducts.splice( i, 1 ); 
                 }
             }
         }
     }
+    */
 
     const changeStatus = ( status ) => {
         const orderNumber = props.invoice.order_number
@@ -61,17 +64,17 @@ function InvoiceDetails(props){
                 headers : {
                     "Content-Type" : "application/json",
                     'Accept': 'application/json',
-                    "Authorization" : `Token ${token}`
+                    "Authorization" : `Token ${ token }`
                 },
                 body : JSON.stringify({
                 orderNumber : orderNumber,
                 status : status
                 })
             })
-            .then((res) => {
-                if(res.status === 200){
-                    if(status === "DELIVERED" && props.invoice.payment_method.toUpperCase() === "PAYMENT PENDING"){
-                        alert(`Please Collect BDT ${props.invoice.invoiced_amount} from Customer`)
+            .then(( res ) => {
+                if( res.status === 200 ){
+                    if( status === "DELIVERED" && props.invoice.payment_method.toUpperCase() === "PAYMENT PENDING" ) {
+                        alert(`Please Collect BDT ${ Number( parseFloat(total).toFixed(2) || 0.00 ) } from Customer`)
                         alert(`Status of order ${orderNumber} has been updated to ${status}`)
                     }else{
                         alert(`Status of order ${orderNumber} has been updated to ${status}`)
@@ -79,12 +82,13 @@ function InvoiceDetails(props){
                     props.update();
                     props.close();
                 }else{
-                    alert(`error ${res.status}`)
+                    alert(`error ${ res.status }`)
                 }
             })
         )
     }
 
+    /*
     const partialdeliver = () => {
         let removeAmount = Number(0)
         for( let i = 0; i < props.products.length; i++ ) {
@@ -123,32 +127,33 @@ function InvoiceDetails(props){
         )
         selectPartial();
     }
+    */
 
-    const updateQTY = (id, quantity) => {
-        let value = document.getElementById(`id${id}qty`).value
-        if ( value >= quantity || value < 1) {
-            alert(`Quantity between 1 and ${quantity - 1} to be updated`)
+    const updateQTY = ( id, quantity ) => {
+        let value = document.getElementById( `id${ id }qty` ).value
+        if ( value >= quantity || value < 0 ) {
+            alert(`Quantity muat be between 0 and ${ quantity - 1 }` )
         } else {
-            fetch(`${APIURL.URL}/product_update/product_update/`,{
+            fetch( `${ APIURL.URL }/product_update/product_update/`,{
                 method : "POST",
                 headers : {
                     "Content-Type" : "application/json",
                     'Accept': 'application/json',
-                    "Authorization" : `Token ${token}`
+                    "Authorization" : `Token ${ token }`
                 },
                 body : JSON.stringify({
                     id : id,
                     quantity : value
                 })
             })
-            .then((res)=>{
+            .then(( res )=>{
                 if( res.status === 200 ) {
                     props.update();
                 } else {
-                    alert(`error ${res.status}`)
+                    alert(`error ${ res.status }`)
                 }
             })
-            .catch(err => console.log(err))
+            .catch( err => alert( err ) )
         }
         
     }
@@ -156,7 +161,7 @@ function InvoiceDetails(props){
     if ( props.invoice !== null && props.invoice !== undefined ){
         return (
             <Modal
-            {...props}
+            { ...props }
             size="lg"
             aria-labelledby="contained-modal-title-vcenter"
             centered
@@ -168,160 +173,166 @@ function InvoiceDetails(props){
           </Modal.Header>
           <Modal.Body>
             <div>
-                    <h4>Order Number {props.invoice.order_number}</h4>
+                    <h4>Order Number { props.invoice.order_number }</h4>
                     <ListGroup>
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
                                     <b>Collection Point :</b>
-                                    {props.invoice.collection_point}
+                                    { props.invoice.collection_point }
                                 </div>
                             </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                     <b>Customer Name :</b>
-                                    {props.invoice.customer_name}
+                                    { props.invoice.customer_name }
                                 </div>
                         </ListGroupItem>
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
                                     <b>Customer Email :</b> 
-                                    {props.invoice.customer_email}
+                                    { props.invoice.customer_email }
                                 </div>
                         </ListGroupItem>
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
                                     <b>Customer Phone :</b> 
-                                    {props.invoice.customer_phone}
+                                    { props.invoice.customer_phone }
                                 </div>
                         </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Status :</b> 
-                                {props.invoice.status}
+                                { props.invoice.status }
                             </div>
                         </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Ivoiced amount :</b> 
-                                {props.invoice.invoiced_amount}
+                                { props.invoice.invoiced_amount }
                             </div>
                         </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Received Amount :</b> 
-                                {props.invoice.received_amount}
+                                { props.invoice.received_amount }
                             </div>
                         </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Payment Method :</b> 
-                                {props.invoice.payment_method.toUpperCase()}
+                                { props.invoice.payment_method.toUpperCase() }
                             </div>
                         </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Commission Amount :</b> 
-                                {props.invoice.commission_amount}
+                                { props.invoice.commission_amount }
                             </div>
                         </ListGroupItem>
                     </ListGroup>
-                    <Table>
-                        <thead>
-                            <tr>
-                                {selectCancel ? <th>Remove</th> : null}
-                                <th>
-                                    Barcode
-                                </th>
-                                <th>
-                                    Description
-                                </th>
-                                <th>
-                                    Qty
-                                </th>
-                                <th>
-                                    Price
-                                </th>
-                                <th>
-                                    Total
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            { products && products.map(( product ) => {
-                                return(
-                                    <tr key={ product.id }>
-                                        {   
-                                        selectCancel ? 
+                    <div style={{ overflowX : "scroll" }}>
+                        <Table style = {{ overflowX : "scroll" }}>
+                            <thead>
+                                <tr>
+                                    {/*{  selectCancel ? <th>Remove</th> : null }*/}
+                                    <th>
+                                        Barcode
+                                    </th>
+                                    <th>
+                                        Description
+                                    </th>
+                                    <th>
+                                        Qty
+                                    </th>
+                                    <th>
+                                        Price
+                                    </th>
+                                    <th>
+                                        Total
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                { products && products.map(( product ) => {
+                                    return(
+                                        <tr key={ product.id }>
+                                        {/*{   
+                                            selectCancel ? 
+                                                <td>
+                                                    <input 
+                                                        className = "remove"
+                                                        type = "checkbox" 
+                                                        id = { product.id } 
+                                                        value = { product.id } 
+                                                        onClick = {  () => {  removeItem( product.id ) } }>
+                                                    </input>
+                                                </td>
+                                            : null
+                                            }
+                                        */}
                                             <td>
-                                                <input 
-                                                    className="remove"
-                                                    type="checkbox" 
-                                                    id={ product.id } 
-                                                    value={ product.id } 
-                                                    onClick={  () => {  removeItem( product.id ) } }>
-                                                </input>
+                                                { product.barcode }
                                             </td>
-                                        : null
-                                        }
-                                        <td>
-                                            { product.barcode }
-                                        </td>
-                                        <td>
-                                            { product.description }
-                                        </td>
-                                        <td>
-                                            <input 
-                                                type = 'number' 
-                                                className = "form-control" 
-                                                placeholder = { product.quantity }
-                                                max = { product.quantity }
-                                                min = "1"
-                                                id = {`id${ product.id }qty`}
-                                                >
+                                            <td>
+                                                { product.description }
+                                            </td>
+                                            <td>
+                                                { selectCancel ?
+                                                <div>
+                                                    <input 
+                                                        type = 'number' 
+                                                        className = "form-control" 
+                                                        placeholder = { product.quantity }
+                                                        max = { product.quantity }
+                                                        min = "0"
+                                                        id = { `id${ product.id }qty` }
+                                                        >
+                                                    </input>
+                                                    <Button 
+                                                        onClick = { () => updateQTY( product.id, product.quantity ) }
+                                                        className = "btn btn-primary"
+                                                    >
+                                                        Update
+                                                    </Button>
+                                                </div>
+                                                : product.quantity
+                                                }
+                                            </td>
+                                            <td>
+                                                { product.price }
+                                            </td>
+                                            <td>
+                                                { product.total }
+                                            </td>
+                                        </tr>
+                                    )
+                                })}
+                                <tr>
+                                    {/*{
+                                    selectCancel ?
+                                    <td> </td> 
+                                    : null 
+                                    }*/}
+                                    <td>
+                                        <b>Total</b>
+                                    </td>
+                                    <td>
 
-                                            </input>
-                                            <Button 
-                                                disabled = { product.quantity===1 } 
-                                                onClick = { () => updateQTY( product.id, product.quantity ) }
-                                                className = "btn btn-primary"
-                                            >
-                                                Update
-                                            </Button>
-                                        </td>
-                                        <td>
-                                            { product.price }
-                                        </td>
-                                        <td>
-                                            { product.total }
-                                        </td>
-                                    </tr>
-                                )
-                            })}
-                            <tr>
-                                {
-                                 selectCancel ?
-                                  <td> </td> 
-                                : null 
-                                }
-                                <td>
-                                    <b>Total</b>
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
 
-                                </td>
-                                <td>
+                                    </td>
+                                    <td>
 
-                                </td>
-                                <td>
-
-                                </td>
-                                <td>
-                                    { Number( parseFloat(total).toFixed(2) - parseFloat(returnTotal).toFixed(2) || 0.00 )}
-                                </td>
-                            </tr>
-                        </tbody>
-                    </Table>
-                    { 
+                                    </td>
+                                    <td>
+                                        { (parseFloat( total ).toFixed( 2 ) || 0.00 )}
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </Table>
+                    </div>
+                    {/*{ 
                     selectCancel ?
                         <Button 
                             variant = "danger" 
@@ -330,7 +341,7 @@ function InvoiceDetails(props){
                             Complete Partial Delivery
                         </Button> 
                     : null
-                    }
+                    }*/}
                     <Row>
                         <Col>
                             {
@@ -351,7 +362,6 @@ function InvoiceDetails(props){
                                 <Button 
                                     variant = "success"  
                                     onClick = { () => changeStatus( "DELIVERED" ) }
-                                    disabled = { selectCancel }
                                 >
                                     Complete Delivery
                                 </Button>
@@ -365,7 +375,7 @@ function InvoiceDetails(props){
                                     variant = "warning" 
                                     onClick = { selectPartial }
                                 >
-                                    Partial Delivery
+                                    Change QTY
                                 </Button>
                             : null
                             }

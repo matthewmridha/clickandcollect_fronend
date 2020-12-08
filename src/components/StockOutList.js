@@ -5,14 +5,14 @@ import { trackPromise } from 'react-promise-tracker';
 import { URLContext } from '..';
 
 function StockOutList( props ){
-  	const [authToken] = useCookies(["auth-token"])
-  	const token = authToken["auth-token"]
-	const [stockOut, setStockOut] = useState([])
-	const APIURL = useContext(URLContext)
+  	const [ authToken ] = useCookies( [ "auth-token" ] )
+  	const token = authToken[ "auth-token" ]
+	const [ stockOut, setStockOut ] = useState( [] )
+	const APIURL = useContext( URLContext )
 	
-	useEffect(()=>{
+	useEffect( () => {
     	getStockData()
-	},[]);
+	}, [] );
     
   	const getStockData = () => {
     	fetch(`${APIURL.URL}/stock_out/`,{
@@ -20,29 +20,29 @@ function StockOutList( props ){
             headers : {
                 "Content-Type" : "application/json",
                 'Accept': 'application/json',
-                "Authorization" : `Token ${token}`
+                "Authorization" : `Token ${ token }`
             }
         })
-        .then(res => res.json())
-        .then(res => setStockOut(res))
-        .catch(error => console.log(error))
+        .then( res => res.json() )
+        .then( res => setStockOut( res ) )
+        .catch( error => alert( error ) )
 	}
 
-  	const stockReceived = (id) => {
+  	const stockReceived = ( id ) => {
     	trackPromise(
-      		fetch(`${APIURL.URL}/stock_returned/return_product/`,{
+      		fetch(`${ APIURL.URL }/stock_returned/return_product/`,{
 				method : "POST",
 				headers : {
 					"Content-Type" : "application/json",
 					'Accept': 'application/json',
-					"Authorization" : `Token ${token}`
+					"Authorization" : `Token ${ token }`
 				},
 				body : JSON.stringify({
 				productId : id,
           		})
       		})
-			.then((res)=>{
-				if (res.status === 200){
+			.then(( res ) => {
+				if ( res.status === 200 ){
 					getStockData()
 				}
       		})
@@ -50,7 +50,9 @@ function StockOutList( props ){
 	  }
 	  
   	return(
-        <div>
+		<div 
+			style = {{ overflowX : "scroll" }}
+		>
           	<Table>
             	<thead>
               	<tr>
@@ -69,31 +71,37 @@ function StockOutList( props ){
               	</tr>
             	</thead>
             	<tbody>
-					{stockOut.filter((stock)=>{return stock.status === "PENDING"}).map(item => {
-            			return(
-							<tr key={item.id}>
-								<td>
-									{item.item}
-								</td>
-								<td>
-									{item.description}
-								</td>
-								<td>
-									{item.quantity}
-								</td>
-								<td>
-									{item.profile}
-								</td> 
-								{props.isHost ? 
-									<td>
-										<Button onClick={()=>stockReceived(item.id)}>
-											Received
-										</Button>
-									</td> 
-								: null}
-							</tr>
-            			)
-          			})}
+					{ stockOut.filter( ( stock ) => {
+						return stock.status === "PENDING" }).map( item => 
+							{
+								return (
+									<tr key = { item.id }>
+										<td>
+											{ item.item }
+										</td>
+										<td>
+											{ item.description }
+										</td>
+										<td>
+											{ item.quantity }
+										</td>
+										<td>
+											{ item.profile }
+										</td> 
+										{ props.isHost ? 
+											<td>
+												<Button 
+													onClick = { () => stockReceived( item.id ) } 
+												>
+													Received
+												</Button>
+											</td> 
+										: null }
+									</tr>
+								)
+							}
+						)
+					}
           		</tbody>
           	</Table>
         </div>

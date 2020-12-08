@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { faCheckSquare, faFilter, faSignOutAlt, faSearch } from '@fortawesome/free-solid-svg-icons'
+import { faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import InvoiceList from './InvoiceList';
 import StockOutList from './StockOutList';
 import InvoiceDetails from './InvoiceDetails'
@@ -13,7 +13,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCookies } from 'react-cookie'
 import { URLContext } from '..'
 
-library.add( faCheckSquare, faFilter, faSignOutAlt, faSearch)
+library.add( faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt)
 
 function Dashboard (props) {
     const [invoices, setInvoice] = useState([])
@@ -68,16 +68,17 @@ function Dashboard (props) {
 
 	const updateData = () => {
 		getDashBoardData();
-		getProducts(selectedInvoice)
+		getProducts( selectedInvoice )
+		
 	}
 
 	const openCreateInvoice = () => {
-        fetch(`${APIURL.URL}/invoice/`,{
+        fetch(`${ APIURL.URL }/invoice/`,{
             method : "GET",
             headers : {
               "Content-Type" : "application/json",
               'Accept': 'application/json',
-              "Authorization" : `Token ${props.token}`
+              "Authorization" : `Token ${ props.token }`
             }
         })
         .then(res => res.json())
@@ -107,22 +108,22 @@ function Dashboard (props) {
 					<LoadingIndicator/>
 					{selectedInvoice ? 
 						<InvoiceDetails 
-							show={detailInvoiceModalShow}
-							onHide={() => setDetailInvoiceModalShow(false)}
-							close={()=>setDetailInvoiceModalShow(false)}
-							invoice={selectedInvoice} 
-							products={products}
-							items={items}
-							update={updateData}
+							show = { detailInvoiceModalShow }
+							onHide = { () => setDetailInvoiceModalShow( false ) }
+							close = { () => setDetailInvoiceModalShow( false ) }
+							invoice = { selectedInvoice } 
+							products = { products }
+							items = { items }
+							update = { updateData }
 						/>
 					: null}
 					
 					<CreateInvoice  
-						show={createInvoiceModalShow}
-						onHide={() => setCreateInvoiceModalShow(false)}
-						items={items}
-						profiles={profiles}
-						update={getDashBoardData}
+						show = { createInvoiceModalShow }
+						onHide = { () => setCreateInvoiceModalShow( false ) }
+						items = { items }
+						profiles = { profiles }
+						update = { getDashBoardData }
 						username = { username["username"] }
 					/>                
 					<Accordion>

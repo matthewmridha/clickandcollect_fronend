@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useContext} from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { Table } from 'react-bootstrap'
 import { trackPromise } from 'react-promise-tracker';
 import { URLContext } from '..';
@@ -6,16 +6,16 @@ import { useCookies } from 'react-cookie'
 
 
 function Commission ( props ) {
-    const [authToken] = useCookies(["auth-token"])
-  	const token = authToken["auth-token"]
-    const [commissions, setCommissions] = useState([])
-    const [payee, setPayee] = useState("")
-    const [payAmount, setPayAmount] = useState("")
-    const APIURL = useContext(URLContext)
+    const [ authToken ] = useCookies( [ "auth-token" ] )
+  	const token = authToken[ "auth-token" ]
+    const [ commissions, setCommissions ] = useState( [] )
+    const [ payee, setPayee ] = useState( "" )
+    const [ payAmount, setPayAmount ] = useState( "" )
+    const APIURL = useContext( URLContext )
 
     useEffect( () => {
         getCommissionData();
-    }, [])
+    }, [] )
 
     const getCommissionData = () => {
         fetch(`${APIURL.URL}/commissions/`,{
@@ -23,12 +23,12 @@ function Commission ( props ) {
             headers : {
                 "Content-Type" : "application/json",
                 'Accept': 'application/json',
-                "Authorization" : `Token ${token}`
+                "Authorization" : `Token ${ token }`
             }
         })
         .then(res => res.json())
-        .then(res => setCommissions(res))
-        .catch(error => console.log(error))
+        .then(res => setCommissions( res ))
+        .catch(error => alert( error ))
     }
     const changePayee = ( e ) => {
         setPayee( e.target.value )
@@ -41,32 +41,32 @@ function Commission ( props ) {
     const makePayment = ( e ) => {
         e.preventDefault();
         trackPromise(
-            fetch(`${APIURL.URL}/commissions/pay_commissions/`,{
+            fetch(`${ APIURL.URL }/commissions/pay_commissions/`,{
                 method : "POST",
                 headers : {
                     "Content-Type" : "application/json",
                     'Accept': 'application/json',
-                    "Authorization" : `Token ${token}`
+                    "Authorization" : `Token ${ token }`
                 },
                 body : JSON.stringify({
                     profile : payee,
                     amount : payAmount
                 })
             })
-            .then((res) => {
-                if(res.status === 200){
-                    alert("Payment Updated");
+            .then(( res ) => {
+                if( res.status === 200 ){
+                    alert( "Payment Updated" );
                     getCommissionData();
                 }
             })
-            .then(setPayAmount(""))
-            .then(setPayee(""))
-            .catch(err => console.log(err))
+            .then( setPayAmount( "" ) )
+            .then( setPayee( "" ) )
+            .catch( err => alert(err) )
         )
     }
     
     return(
-        <div>
+        <div style={{ overflowX : "scroll" }}>
             <Table>
                 <tr>
                     <th>
@@ -82,20 +82,20 @@ function Commission ( props ) {
                         Commission Due
                     </th>
                 </tr>
-            {commissions && commissions.map(row => {
+            { commissions && commissions.map( row => {
                 return (
                     <tr>
                         <td>
-                            {row.profile}
+                            { row.profile }
                         </td>
                         <td>
-                            {row.commission_made}
+                            { row.commission_made }
                         </td>
                         <td>
-                            {row.commission_paid}
+                            { row.commission_paid }
                         </td>
                         <td>
-                            {row.commission_due}
+                            { row.commission_due }
                         </td>
                     </tr>
                 )
@@ -103,7 +103,7 @@ function Commission ( props ) {
             </Table>
             { props.isHost ? 
                 <div>
-                    <form onSubmit={makePayment}>
+                    <form onSubmit={ makePayment }>
                         <select 
                             className="form-control" 
                             value={ payee } 
@@ -114,7 +114,7 @@ function Commission ( props ) {
                                     <option 
                                         key={ row.profile } 
                                         value={ row.profile }
-                                    >{row.profile}
+                                    >{ row.profile }
                                     </option>
                                 )
                             })}

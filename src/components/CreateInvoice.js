@@ -5,6 +5,7 @@ import AlertDismissible from './alert'
 import LoadingIndicator from './LoadingIndicator';
 import { useCookies } from 'react-cookie'
 import { URLContext } from '..'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 function CreateInvoice(props) {
 
@@ -12,39 +13,39 @@ function CreateInvoice(props) {
   const token = authToken["auth-token"]
   const APIURL = useContext(URLContext) 
 
-  const [orderNumber, setOrderNumber] = useState("")
-  const [customerName, setCustomerName] = useState("")
-  const [customerEmail, setCustomerEmail] = useState("")
-  const [customerPhone, setCustomerPhone] = useState("")
-  const [destination, setDestination] = useState("")
-  const [itemInput, setItemInput] = useState("")
+  const [orderNumber, setOrderNumber] = useState( "" )
+  const [customerName, setCustomerName] = useState( "" )
+  const [customerEmail, setCustomerEmail] = useState( "" )
+  const [customerPhone, setCustomerPhone] = useState( "" )
+  const [destination, setDestination] = useState( "" )
+  const [itemInput, setItemInput] = useState( "" )
   const [products, setProducts] = useState([])
-  const [matchedBarcode, setMatchedBarcode] = useState(false)
+  const [matchedBarcode, setMatchedBarcode] = useState( false )
   const [quantityInput, setQuantityInput] = useState(1)
   const [tempIndex, settempIndex] = useState()
-  const [paymentMethod, setPaymentMethod] = useState("payment pending")
-  const [showAlert, setShowAlert] = useState(false)
-  const [alertHeader, setAlertHeader] = useState("")
-  const [alertMessage, setAlertMessage] = useState("")
+  const [paymentMethod, setPaymentMethod] = useState( "payment pending" )
+  const [showAlert, setShowAlert] = useState( false )
+  const [alertHeader, setAlertHeader] = useState( "" )
+  const [alertMessage, setAlertMessage] = useState( "" )
   
-  const changeInput = (e, targetState) =>{
-    targetState(e.target.value)
+  const changeInput = ( e, targetState ) => {
+    targetState( e.target.value )
   }
   
-  const changeDestination = (e) => {
-    setDestination(e.target.value)
+  const changeDestination = ( e ) => {
+    setDestination( e.target.value )
   }
   
-  const checkItemCode = (e) => {
+  const checkItemCode = ( e ) => {
     let inputItemBarcode = e.target.value.toUpperCase();
-    if(inputItemBarcode.length > 5 && inputItemBarcode.charAt(0) === "A"){
-      for(let i = 0; i < props.items.length; i++){
-        if(inputItemBarcode === props.items[i]["barcode"]){
-          setMatchedBarcode(true)
-          settempIndex(i)
+    if( inputItemBarcode.length > 5 && inputItemBarcode.charAt( 0 ) === "A" ){
+      for( let i = 0; i < props.items.length; i++ ) {
+        if( inputItemBarcode === props.items[ i ][ "barcode" ] ){
+          setMatchedBarcode( true )
+          settempIndex( i ) 
         }
       }
-    }else{
+    } else {
       return
     }
   }
@@ -81,10 +82,21 @@ function CreateInvoice(props) {
   }
 
   const closeAlert = () => {
-    setShowAlert(false)
+    setShowAlert( false )
     setAlertHeader()
     setAlertMessage()
   }
+
+  const removeitem = ( barcode ) => {
+    let tempProductsArray = [...products]
+    for( let i = 0; i < tempProductsArray.length; i++ ){
+      if ( tempProductsArray[i].barcode === barcode ){
+        tempProductsArray.splice( i, 1 )
+      }
+    }
+    setProducts( tempProductsArray )
+  }
+
   const handleSubmit = (e) => {
     e.preventDefault();
     if(products.length > 0){
@@ -106,9 +118,9 @@ function CreateInvoice(props) {
             items : products
           })
         })
-        .then((res) => {
-          if(res.status === 200){
-            alert("Invoice Created");
+        .then(( res ) => {
+          if( res.status === 200 ){
+            alert(`Invoice ${orderNumber} Created`);
             props.update();
             setProducts([]);
           }
@@ -250,6 +262,9 @@ function CreateInvoice(props) {
                       <th>
                         Total
                       </th>
+                      <th>
+
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
@@ -268,7 +283,9 @@ function CreateInvoice(props) {
                           <td>
                             {Math.round((parseFloat(product.price) * parseFloat(product.quantity))*100)/100 }
                           </td>
-                          
+                          <td>
+                          <FontAwesomeIcon icon='trash-alt' onClick={()=>{removeitem(product.barcode)}}/>
+                          </td>
                         </tr>
                       )
                     })}

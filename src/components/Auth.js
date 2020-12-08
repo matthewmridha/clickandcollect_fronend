@@ -17,8 +17,10 @@ const Auth = () => {
     const APIURL = useContext(URLContext)
     const login = (e) => {
         e.preventDefault();
+        ///const url = `https://decathlonbangladeshcnc.herokuapp.com/auth/`
+        const url = 'http://127.0.0.1:8000/auth/'
         trackPromise(
-            fetch(`https://decathlonbangladeshcnc.herokuapp.com/auth/`,{
+            fetch(url, {
               method : "POST",
               headers : {
                 "Content-Type" : "application/json",
@@ -84,7 +86,7 @@ const Auth = () => {
         console.log(newPassword1)
         if(newPassword1 === newPassword2){
             trackPromise(
-                fetch(`${APIURL.URL}/api/password_reset/confirm/`,{
+                fetch(`${APIURL.URL}/password_reset/confirm/`,{
                 method : "POST",
                 headers : {
                     "Content-Type" : "application/json",
