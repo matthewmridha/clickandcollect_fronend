@@ -105,7 +105,7 @@ function Dashboard (props) {
 				</div>
 			</header>
 			<main>
-				<div className='container'>
+				<div className='container' style={{width:"100vw"}}>
 					<LoadingIndicator/>
 					{selectedInvoice ? 
 						<InvoiceDetails 
@@ -128,7 +128,7 @@ function Dashboard (props) {
 						update = { getDashBoardData }
 						username = { username["username"] }
 					/>                
-					<Accordion>
+					<Accordion style={{width:"90vw"}}>
 						<Card>
 							<Accordion.Toggle as={Card.Header} eventKey="0">
 							Orders

@@ -16,7 +16,7 @@ class ComponentToPrint extends React.Component {
                     <h3>Customer Name : </h3> <b>{ this.props.invoice.name }</b>
                 </li>
                 <li>
-                    <h3>Customer Number : </h3><b>{ this.props.invoice.number }</b>
+                    <h3>Customer Number : </h3><b>{ this.props.invoice.phone }</b>
                 </li>
                 <li>
                     <h3>Number of Boxes : </h3><b>{ this.props.invoice.boxes }</b>
