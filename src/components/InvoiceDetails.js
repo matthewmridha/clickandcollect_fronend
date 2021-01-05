@@ -11,17 +11,23 @@ import {
 import { useCookies } from 'react-cookie'
 import { trackPromise } from 'react-promise-tracker';
 import { URLContext } from '..'
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import Confirm from './Confirm'
 
 function InvoiceDetails( props ) {
-    const [ authToken] = useCookies( [ "auth-token" ] )
-    const token = authToken[ "auth-token" ]
-    const [ products, setProducts ] = useState( [] )
-    const [ returnProducts, setReturnProducts] = useState( [] )
-    const [ total, setTotal] = useState( "" )
-    const [ returnTotal, setReturnTotal] = useState( 0 )
-    const [ selectCancel, setSelectCancel ] = useState( false )
-    const APIURL = useContext( URLContext )
+    const [ authToken] = useCookies( [ "auth-token" ] );
+    const token = authToken[ "auth-token" ];
+    const [ products, setProducts ] = useState( [] );
+    const [ returnProducts, setReturnProducts] = useState( [] );
+    const [ total, setTotal] = useState( "" );
+    const [ returnTotal, setReturnTotal] = useState( 0 );
+    const [ selectCancel, setSelectCancel ] = useState( false );
+    const APIURL = useContext( URLContext );
+    const [confirmShow, setConfirmShow] = useState( false );
+    const [ confirmMessage, setConfirmMessage ] = useState( "" );
+    const [ removeId, setRemoveId ] = useState();
+    const [ removeItemQuantity, setRemoveItemQuantity ] = useState( "" );
+    
     
         
     useEffect( () => {
@@ -29,32 +35,22 @@ function InvoiceDetails( props ) {
             return product.total
         }).reduce(( total, current ) => {
             return parseInt( parseInt( total ) + parseInt( current ) ).toFixed( 2 )
-        }, 0)
+        }, 0);
         setTotal( total )
-    },[ props.products ] )
+    },[ props.products ] );
 
     useEffect( ()=> {
         setProducts( props.products )
-    }, [ props.products ] )
+    }, [ props.products ] );
 
     const selectPartial = () => {
         setReturnProducts( [] )
         setSelectCancel( !selectCancel )
-    }
+    };
 
-    /*
-    const removeItem = ( x ) => {
-        if ( document.getElementById( x ).checked ) {
-            setReturnProducts([ ...returnProducts, x ])
-        } else {
-            for( var i = 0; i < returnProducts.length; i++ ) { 
-                if ( returnProducts[ i ] === x ) { 
-                    returnProducts.splice( i, 1 ); 
-                }
-            }
-        }
-    }
-    */
+    const handleConfirmClose = () => setConfirmShow( false );
+    const handleConfirmShow = () => setConfirmShow( true );
+      
 
     const changeStatus = ( status ) => {
         const orderNumber = props.invoice.order_number
@@ -78,61 +74,33 @@ function InvoiceDetails( props ) {
                         alert(`Status of order ${orderNumber} has been updated to ${status}`)
                     }else{
                         alert(`Status of order ${orderNumber} has been updated to ${status}`)
-                    }
+                    };
                     props.update();
                     props.close();
                 }else{
                     alert(`error ${ res.status }`)
-                }
+                };
             })
-        )
+        );
+    };
+
+    const removeItem = ( id, quantity, barcode, description) => {
+        setRemoveItemQuantity( quantity );
+        setRemoveId( id );
+        setConfirmMessage ( `Are you sure you want to remove ${ barcode } - ${ description } from invoice?` );
+        handleConfirmShow();
     }
 
-    /*
-    const partialdeliver = () => {
-        let removeAmount = Number(0)
-        for( let i = 0; i < props.products.length; i++ ) {
-            for ( let j = 0; j < returnProducts.length; j++ ) {
-                if ( props.products[i].id === returnProducts[j] ){
-                    removeAmount += Number( parseInt( props.products[i].total ).toFixed( 2 ))
-                }
-            }
-        }
-        if ( props.invoice.payment_method.toUpperCase() === "PENDING PAYMENT") {
-            alert(`Please collect BDT ${total - removeAmount} from customer`)
-        }
-        const orderNumber = props.invoice.order_number
-        trackPromise(
-            fetch(`${APIURL.URL}/partial_delivery/returnItems/`,{
-                method : "POST",
-                headers : {
-                    "Content-Type" : "application/json",
-                    'Accept': 'application/json',
-                    "Authorization" : `Token ${token}`
-                },
-                body : JSON.stringify({
-                    orderNumber : orderNumber,
-                    returnItems : returnProducts
-                })
-            })
-            .then((res) => {
-                if( res.status === 200 ){
-                    props.update();
-                    props.close();
-                }
-                else {
-                    alert(`error ${res.status}`)
-                }
-            })
-        )
-        selectPartial();
-    }
-    */
+    const deleteItem = ( id ) => {
+        updateQTY( id, removeItemQuantity, "0" );
+        handleConfirmClose();
+    };
 
-    const updateQTY = ( id, quantity ) => {
-        let value = document.getElementById( `id${ id }qty` ).value
+    const updateQTY = ( id, quantity, del=null ) => {
+        console.log(del)
+        let value = del || document.getElementById( `id${ id }qty` ).value
         if ( value >= quantity || value < 0 ) {
-            alert(`Quantity muat be between 0 and ${ quantity - 1 }` )
+            alert(`Quantity muat be between 0 and ${ quantity - 1 }, is ${value}` )
         } else {
             fetch( `${ APIURL.URL }/product_update/product_update/`,{
                 method : "POST",
@@ -155,6 +123,7 @@ function InvoiceDetails( props ) {
             })
             .catch( err => alert( err ) )
         }
+        return
         
     }
     
@@ -168,12 +137,18 @@ function InvoiceDetails( props ) {
         >
           <Modal.Header closeButton>
             <Modal.Title id="contained-modal-title-vcenter">
-              Create Order
+            <h4>Order Number { props.invoice.order_number }</h4>
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
             <div>
-                    <h4>Order Number { props.invoice.order_number }</h4>
+                    <Confirm 
+                        show={ confirmShow } 
+                        close={ handleConfirmClose }
+                        message={ confirmMessage }
+                        argument={ removeId }
+                        passedFunction={ deleteItem }
+                    />
                     <ListGroup>
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
@@ -229,12 +204,18 @@ function InvoiceDetails( props ) {
                                 { props.invoice.commission_amount }
                             </div>
                         </ListGroupItem>
+                        <ListGroupItem>
+                            <div className="invoiceDetailsRow">
+                                <b>Number of Boxes :</b> 
+                                { props.invoice.boxes }
+                            </div>
+                        </ListGroupItem>
                     </ListGroup>
                     <div style={{ overflowX : "scroll" }}>
                         <Table style = {{ overflowX : "scroll" }}>
                             <thead>
                                 <tr>
-                                    {/*{  selectCancel ? <th>Remove</th> : null }*/}
+                                    {  selectCancel ? <th>Remove</th> : null }
                                     <th>
                                         Barcode
                                     </th>
@@ -256,20 +237,24 @@ function InvoiceDetails( props ) {
                                 { products && products.map(( product ) => {
                                     return(
                                         <tr key={ product.id }>
-                                        {/*{   
+                                        {   
                                             selectCancel ? 
                                                 <td>
-                                                    <input 
-                                                        className = "remove"
-                                                        type = "checkbox" 
-                                                        id = { product.id } 
-                                                        value = { product.id } 
-                                                        onClick = {  () => {  removeItem( product.id ) } }>
-                                                    </input>
+                                                    <FontAwesomeIcon icon="trash-alt" 
+                                                        onClick = { 
+                                                            () => { 
+                                                                removeItem( 
+                                                                    product.id, 
+                                                                    product.quantity, 
+                                                                    product.barcode, 
+                                                                    product.description 
+                                                                )
+                                                            }
+                                                        }
+                                                    />
                                                 </td>
                                             : null
-                                            }
-                                        */}
+                                        }
                                             <td>
                                                 { product.barcode }
                                             </td>
@@ -304,15 +289,16 @@ function InvoiceDetails( props ) {
                                             <td>
                                                 { product.total }
                                             </td>
+                                            
                                         </tr>
                                     )
                                 })}
                                 <tr>
-                                    {/*{
+                                    {
                                     selectCancel ?
                                     <td> </td> 
                                     : null 
-                                    }*/}
+                                    }
                                     <td>
                                         <b>Total</b>
                                     </td>
@@ -332,20 +318,10 @@ function InvoiceDetails( props ) {
                             </tbody>
                         </Table>
                     </div>
-                    {/*{ 
-                    selectCancel ?
-                        <Button 
-                            variant = "danger" 
-                            onClick = { () => partialdeliver() }
-                        >
-                            Complete Partial Delivery
-                        </Button> 
-                    : null
-                    }*/}
                     <Row>
                         <Col>
                             {
-                            props.invoice.status === "PROCESSING" ? 
+                            props.invoice.status === "PROCESSING"  && !props.isHost ?
                                 <Button 
                                     variant = "primary" 
                                     onClick = { () => changeStatus( "READY FOR DELIVERY" ) }
@@ -381,7 +357,7 @@ function InvoiceDetails( props ) {
                             }
                         </Col>
                         <Col>
-                            {props.invoice.status === "READY FOR DELIVERY" ? 
+                            {props.invoice.status === "READY FOR DELIVERY"  || (props.isHost && props.invoice.status === "PROCESSING") ? 
                                 <Button 
                                     variant = "danger"  
                                     onClick = { () => changeStatus( "CANCELLED" ) }

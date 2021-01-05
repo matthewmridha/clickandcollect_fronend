@@ -11,7 +11,7 @@ export const URLContext = createContext()
 
 function Router(){
 	const URL = 'https://decathlonbangladeshcnc.herokuapp.com/api'
-	///const URL = 'http://127.0.0.1:8000/api'
+	/// URL = 'http://127.0.0.1:8000/api'
 	return (
 		<React.StrictMode>
 			<URLContext.Provider value={{URL}}>
@@ -19,12 +19,11 @@ function Router(){
 					<BrowserRouter>
 						<Route exact path="/" component={Auth}/>
 						<Route exact path="/dashboard" component={App}/>
-						
 					</BrowserRouter>
 			</CookiesProvider>
 			</URLContext.Provider>
 		</React.StrictMode>
-		)
+	)
 }
 
 ReactDOM.render(

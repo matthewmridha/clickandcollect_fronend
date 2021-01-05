@@ -21,12 +21,15 @@ function CreateInvoice(props) {
   const [itemInput, setItemInput] = useState( "" )
   const [products, setProducts] = useState([])
   const [matchedBarcode, setMatchedBarcode] = useState( false )
-  const [quantityInput, setQuantityInput] = useState(1)
+  const [quantityInput, setQuantityInput] = useState( 1 )
   const [tempIndex, settempIndex] = useState()
-  const [paymentMethod, setPaymentMethod] = useState( "payment pending" )
+  const [paymentMethod, setPaymentMethod] = useState( "PAYMENT PENDING" )
   const [showAlert, setShowAlert] = useState( false )
   const [alertHeader, setAlertHeader] = useState( "" )
   const [alertMessage, setAlertMessage] = useState( "" )
+  const [discountInput, setDiscountInput] = useState( "0" )
+  const [boxes, setBoxes] = useState( "1" )
+  const [invoiceDiscount, setInvoiceDiscount] = useState( "0" )
   
   const changeInput = ( e, targetState ) => {
     targetState( e.target.value )
@@ -55,7 +58,7 @@ function CreateInvoice(props) {
     setQuantityInput(1)
     setMatchedBarcode(false)
     settempIndex()
-    
+    setDiscountInput(0)
   }
   const clearForm = () => {
     setOrderNumber("")
@@ -63,7 +66,9 @@ function CreateInvoice(props) {
     setCustomerEmail("")
     setCustomerPhone("")
     setDestination("")
-    setPaymentMethod("payment pending")
+    setBoxes("1")
+    setPaymentMethod("PAYMENT PENDING")
+    setInvoiceDiscount("0")
   }
   
   const addItemToList = () => {
@@ -75,7 +80,7 @@ function CreateInvoice(props) {
       }
     }
     let description = props.items[tempIndex]["description"]
-    let price = props.items[tempIndex]["price"]
+    let price = parseFloat(props.items[tempIndex]["price"]) - (parseFloat(discountInput) || 0)
     let itemToBeAdded = {barcode: itemInput, description: description, quantity: quantityInput, price:price}
     setProducts([...products, itemToBeAdded])
     clearAndUpdateList()
@@ -115,7 +120,9 @@ function CreateInvoice(props) {
             customerPhone: customerPhone,
             partnerName : destination,
             paymentMethod : paymentMethod,
-            items : products
+            items : products,
+            boxes : boxes,
+            invoiceDiscount : invoiceDiscount
           })
         })
         .then(( res ) => {
@@ -185,6 +192,7 @@ function CreateInvoice(props) {
                               onChange={e=>changeInput(e, setCustomerPhone)} 
                               value={customerPhone}
                               required
+                              min="0"
                 />
               </Form.Group>
               <Form.Group controlId="partnerNameInput">
@@ -211,17 +219,26 @@ function CreateInvoice(props) {
                               value={paymentMethod}
                               required
                 >
-                  <option value="prepaid">Prepaid</option>
-                  <option value="payment pending">Payment Pending</option>
+                  <option value="PREPAID">Prepaid</option>
+                  <option value="PAYMENT PENDING">Payment Pending</option>
                 </Form.Control>
+              </Form.Group>
+              <Form.Group controlId="boxesInput">
+                <Form.Label>Number of Boxes</Form.Label>
+                <Form.Control type="number" 
+                              onChange={e=>changeInput(e, setBoxes)} 
+                              value={boxes}
+                              min="0"
+                              required
+                />
               </Form.Group>
               <Form.Group>
                 <Form.Row>
-                  <Col xs="8">
+                  <Col xs="6">
                   <Form.Label>Item</Form.Label>
                     <Form.Control id="itemInput"
                                   type="text" 
-                                  onKeyUp={e=>checkItemCode(e)}
+                                  onKeyUp={e=> checkItemCode(e)}
                                   onChange={e=>changeInput(e, setItemInput)} 
                                   value={itemInput}
                     />
@@ -232,6 +249,14 @@ function CreateInvoice(props) {
                                   type="number"
                                   onChange={e=>changeInput(e, setQuantityInput)}
                                   value={quantityInput}
+                    />
+                  </Col>
+                  <Col xs="2">
+                  <Form.Label>Discount</Form.Label>
+                    <Form.Control id="discountInput"
+                                  type="number"
+                                  onChange={e=>changeInput(e, setDiscountInput)}
+                                  value={discountInput}
                     />
                   </Col>
                   <Col xs="auto">
@@ -263,7 +288,6 @@ function CreateInvoice(props) {
                         Total
                       </th>
                       <th>
-
                       </th>
                     </tr>
                   </thead>
@@ -291,6 +315,15 @@ function CreateInvoice(props) {
                     })}
                   </tbody>
               </Table>
+              <Form.Group controlId="InvoiceDiscountInput">
+                <Form.Label>Invoice Discount</Form.Label>
+                <Form.Control type="number" 
+                              onChange={e=>changeInput(e, setInvoiceDiscount)} 
+                              value={invoiceDiscount}
+                              required
+                              min="0"
+                />
+              </Form.Group>
               <Button variant="primary" 
                       size="lg" 
                       block>

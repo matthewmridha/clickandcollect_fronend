@@ -5,20 +5,20 @@ import { URLContext } from '..';
 import { useCookies } from 'react-cookie'
 
 
-function Commission ( props ) {
+function Sale ( props ) {
     const [ authToken ] = useCookies( [ "auth-token" ] )
   	const token = authToken[ "auth-token" ]
-    const [ commissions, setCommissions ] = useState( [] )
-    const [ payee, setPayee ] = useState( "" )
+    const [ sales, setSales ] = useState( [] )
+    const [ payer, setPayer ] = useState( "" )
     const [ payAmount, setPayAmount ] = useState( "" )
     const APIURL = useContext( URLContext )
 
     useEffect( () => {
-        getCommissionData();
+        getSalesData();
     }, [] )
 
-    const getCommissionData = () => {
-        fetch(`${APIURL.URL}/commissions/`,{
+    const getSalesData = () => {
+        fetch(`${APIURL.URL}/sales/`,{
             method : "GET",
             headers : {
                 "Content-Type" : "application/json",
@@ -27,21 +27,21 @@ function Commission ( props ) {
             }
         })
         .then(res => res.json())
-        .then(res => setCommissions( res ))
+        .then(res => setSales( res ))
         .catch(error => alert( error ))
     }
-    const changePayee = ( e ) => {
-        setPayee( e.target.value )
+    const changePayer = ( e ) => {
+        setPayer( e.target.value )
     }
 
     const handleValueChange = ( e ) => {
         setPayAmount( e.target.value )
     }
 
-    const makePayment = ( e ) => {
+    const receivePayment = ( e ) => {
         e.preventDefault();
         trackPromise(
-            fetch(`${ APIURL.URL }/commissions/pay_commissions/`,{
+            fetch(`${ APIURL.URL }/sales/settle_cash/`,{
                 method : "POST",
                 headers : {
                     "Content-Type" : "application/json",
@@ -49,18 +49,18 @@ function Commission ( props ) {
                     "Authorization" : `Token ${ token }`
                 },
                 body : JSON.stringify({
-                    profile : payee,
+                    profile : payer,
                     amount : payAmount
                 })
             })
             .then(( res ) => {
                 if( res.status === 200 ){
                     alert( "Payment Updated" );
-                    getCommissionData();
+                    getSalesData();
                 }
             })
             .then( setPayAmount( "" ) )
-            .then( setPayee( "" ) )
+            .then( setPayer( "" ) )
             .catch( err => alert(err) )
         )
     }
@@ -73,29 +73,35 @@ function Commission ( props ) {
                         Profile
                     </th>
                     <th>
-                        Commission Made
+                        Total Sales
                     </th>
                     <th>
-                        Commission Paid
+                        Cash Sales
                     </th>
                     <th>
-                        Commission Due
+                        Cash Settled
+                    </th>
+                    <th>
+                        Cash Balance
                     </th>
                 </tr>
-            { commissions && commissions.map( row => {
+            { sales && sales.map( row => {
                 return (
                     <tr>
                         <td>
                             { row.profile }
                         </td>
                         <td>
-                            { row.commission_made }
+                            { row.total_sold }
                         </td>
                         <td>
-                            { row.commission_paid }
+                            { row.cash_sales }
                         </td>
                         <td>
-                            { row.commission_due }
+                            { row.cash_settled }
+                        </td>
+                        <td>
+                            { row.cash_owed }
                         </td>
                     </tr>
                 )
@@ -103,16 +109,16 @@ function Commission ( props ) {
             </Table>
             { props.isHost ? 
                 <div>
-                    <label for="payee">Make Payment To:</label>
-                    <form onSubmit={ makePayment }>
+                    <label for="payee">Received Payment From:</label>
+                    <form onSubmit={ receivePayment }>
                         <select 
                             className="form-control" 
-                            value={ payee } 
-                            id="payee"
+                            value={ payer } 
+                            id="payer"
                             style={{ marginBottom : "10px" }}
-                            onChange={ ( e )=>{ changePayee( e ) }}>
+                            onChange={ ( e )=>{ changePayer( e ) }}>
                             <option value="">Select Payee</option>
-                            { commissions && commissions.map( row => {
+                            { sales && sales.map( row => {
                                 return(
                                     <option 
                                         key={ row.profile } 
@@ -140,4 +146,4 @@ function Commission ( props ) {
     )
 }
 
-export default Commission
+export default Sale

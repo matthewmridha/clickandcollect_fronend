@@ -58,7 +58,7 @@ const Auth = () => {
     const getPasswordResetToken = (e) => {
         e.preventDefault();
         trackPromise(
-            fetch(`${APIURL.URL}/api/password_reset/reset_password/`,{
+            fetch(`${APIURL.URL}/password_reset/reset_password/`,{
                 method : "POST",
                 headers : {
                     "Content-Type" : "application/json",
