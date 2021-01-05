@@ -28,7 +28,7 @@ class ComponentToPrint extends React.Component {
                     <h3>COD Amount : </h3><b>{ this.props.method === "PREPAID" || "prepaid" ? "0" : this.props.invoice.amount }</b>
                 </li>
             </ul> 
-            <span style={{float:"right"}}><b>BOX _____ of { this.props.boxes }</b></span>
+            <span style={{float:"right"}}><b>BOX _____ of { this.props.invoice.boxes }</b></span>
         </div>
     )
   }
