@@ -25,7 +25,7 @@ class ComponentToPrint extends React.Component {
                     <b>Payment Method : </b>{ this.props.invoice.method }
                 </li>
                 <li>
-                    <b>COD Amount : </b>{ this.props.invoice.method === "payment pending" ||  this.props.invoice.method === "PAYMENT PENDING" ? this.props.invoice.amount : "0" }
+                    <b>COD Amount : </b>{ this.props.invoice.method === "payment pending" ||  this.props.invoice.method === "PAYMENT PENDING" || this.props.invoice.method === "PENDING PAYMENT" || this.props.invoice.method === "pending payment"? this.props.invoice.amount : "0" }
                 </li>
             </ul> 
             <span style={{float:"right"}}><b>BOX _____ of { this.props.invoice.boxes }</b></span>
