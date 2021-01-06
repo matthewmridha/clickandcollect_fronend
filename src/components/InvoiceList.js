@@ -2,12 +2,23 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import React from 'react'
 import { useState } from 'react';
 import Print from './Print';
+import { PaginatedList } from 'react-paginated-list';
+import { AnyStyledComponent } from 'styled-components';
 
 function InvoiceList( props ){
+
+    const standardUp = "standardUp";
+    const standardDown = "standardDown";
+    const updatedUp = "updatedUp";
+    const updatedDown = "updatedDown";
+    const createdUp = "createUp";
+    const createdDown = "createdDown";
 
     const invoiceClicked = invoice => event => {
         props.invoiceClicked( invoice )
     }
+
+    const [ sort, setSort ] = useState( standardUp )
     const [ filterStatus, setFilterStatus ] = useState( "ALL" )
     const [ filterOrder, setFilterOrder ] = useState( "" )
     const [ filterCustomer, setFilterCustomer ] = useState( "" )
@@ -18,12 +29,40 @@ function InvoiceList( props ){
         setFilterStatus( e.target.value )
     }
 
+    const changeSort = ( type = standardUp ) => {
+        if ( type === "updated" ){
+            if ( sort == updatedUp ){
+                setSort(updatedDown)
+            }
+            else {
+                setSort(updatedUp)
+            }
+        }
+        else if ( type === "created" ) {
+            if ( sort == createdUp ) {
+                setSort( createdDown )
+            }
+            else {
+                setSort( createdUp )
+            }
+        }
+        else {
+            if ( sort == standardUp ) {
+                setSort( standardDown )
+            }
+            else {
+                setSort ( standardUp )
+            }
+        }
+    }
+
     const print = ( order, name, phone, point, boxes, method, amount ) => {
         setPrintOrder( {order:order, name:name, phone:phone, point:point, boxes:boxes, method:method, amount:amount });
         handlePrintShow();
     }
     const handlePrintShow = () => setPrintShow( true );
     const handlePrintClose = () => setPrintShow( false );
+    
     
     return(
         <div>
@@ -34,13 +73,19 @@ function InvoiceList( props ){
             />
         <div 
             className="container container-fluid"
-            style={{ overflowX : "scroll", maxHeight : "50vh", overflowY : "scroll" }}>
+            style={{ 
+                overflowX : "scroll", 
+                maxHeight : "50vh", 
+                overflowY : "scroll",
+                padding : "10px",
+                
+            }}>
                
             <div 
                 style = {{ 
                     display: "flex",
                     flexDirection: "column", 
-                    paddingBottom: "20px" 
+                    paddingBottom: "20px"
                 }} >
                 <div style={{ margin: "10px" }}>
                     <FontAwesomeIcon icon="filter" style = {{ marginRight: "10px" }}/>
@@ -90,8 +135,10 @@ function InvoiceList( props ){
             >
                 <thead>
                     <tr>
-                        <th>
+                        <th onClick = { () => { changeSort( "standard" ) } }>
                             Order
+                            {" "}
+                            <FontAwesomeIcon icon="sort"/>
                         </th>
                         <th>
                             Location
@@ -102,16 +149,37 @@ function InvoiceList( props ){
                         <th>
                             Status
                         </th>
-                        <th>
+                        <th onClick = { () => { changeSort( "created" ) } }>
                             Created
+                            {" "}
+                            <FontAwesomeIcon icon="sort"/>
                         </th>
-                        <th>
+                        <th onClick = { () => { changeSort( "updated" ) } }>
                             Last Updated
+                            {" "}
+                            <FontAwesomeIcon icon="sort"/>
                         </th>
                         { props.isHost ? <th></th> : null }
                     </tr>
                 </thead>
                 <tbody>
+                    {/*
+                <PaginatedList
+                list={props.invoices}
+                itemsPerPage={5}
+                renderList={(list) => (
+                    <>
+                      {list.map((item, id) => {
+                        return (
+                          <div key={id}>
+                            {item.a} {item.b}
+                          </div>
+                        );
+                      })}
+                    </>
+                  )}
+                    />*/}
+
                     { props.invoices && props.invoices.filter( function( invoice ) {
                         if( filterStatus === "ALL" ) {
                             return invoice.status
@@ -133,29 +201,44 @@ function InvoiceList( props ){
                             return nameRegex.test(invoice.customer_name)
                         }
                     }).sort( function( a, b )
-                        { return b.order_number - a.order_number } ).map( function( invoice ) {
+                        { if ( sort === standardUp ) {
+                            return b.order_number - a.order_number 
+                        }
+                        else if( sort === standardDown ){
+                            return a.order_number - b.order_number
+                        }
+                        else if ( sort === updatedUp ) {
+                            return Date.parse(b.updated) - Date.parse(a.updated) 
+                        }
+                        else if ( sort === updatedDown ) {
+                            return Date.parse(a.updated) - Date.parse(b.updated) 
+                        }
+                        else if ( sort === createdUp ) {
+                            return Date.parse(b.created) - Date.parse(a.created) 
+                        }
+                        else if ( sort === createdDown ) {
+                            return Date.parse(a.created) - Date.parse(b.created) 
+                        }
+                    }).map( function( invoice ) {
                             return (
                                 <tr className = 'invoiceList' 
                                     key = { invoice.id } >
-                                    <td
-                                        onClick = { invoiceClicked( invoice ) } 
-                                     
-                                    >
+                                    <td onClick = { invoiceClicked( invoice ) } >
                                     { invoice.order_number }
                                     </td>
-                                    <td>
+                                    <td onClick = { invoiceClicked( invoice ) } >
                                     { invoice.collection_point }
                                     </td>
-                                    <td>
+                                    <td onClick = { invoiceClicked( invoice ) } >
                                     { invoice.customer_name }
                                     </td>
-                                    <td>
+                                    <td onClick = { invoiceClicked( invoice ) } >
                                     { invoice.status }
                                     </td>
-                                    <td>
+                                    <td onClick = { invoiceClicked( invoice ) } >
                                     { invoice.created }
                                     </td>
-                                    <td>
+                                    <td onClick = { invoiceClicked( invoice ) } >
                                     { invoice.updated }
                                     </td>
                                     { props.isHost ? 
@@ -181,7 +264,7 @@ function InvoiceList( props ){
                             )
                         })
                     }
-                    
+                  
                 </tbody>
             </table>
         </div>

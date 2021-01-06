@@ -17,8 +17,8 @@ const Auth = () => {
     const APIURL = useContext(URLContext)
     const login = (e) => {
         e.preventDefault();
-        const url = `https://decathlonbangladeshcnc.herokuapp.com/auth/`
-        ///const url = 'http://127.0.0.1:8000/auth/'
+        ///const url = `https://decathlonbangladeshcnc.herokuapp.com/auth/`
+        const url = 'http://127.0.0.1:8000/auth/'
         trackPromise(
             fetch(url, {
               method : "POST",

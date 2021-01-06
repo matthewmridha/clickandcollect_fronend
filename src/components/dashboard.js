@@ -1,5 +1,5 @@
 import React, {useState, useEffect, useContext} from 'react';
-import { faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt, faPrint } from '@fortawesome/free-solid-svg-icons'
+import { faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt, faPrint, faSortNumericDown, faSortNumericUp, faSort } from '@fortawesome/free-solid-svg-icons'
 import InvoiceList from './InvoiceList';
 import StockOutList from './StockOutList';
 import InvoiceDetails from './InvoiceDetails'
@@ -14,7 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useCookies } from 'react-cookie'
 import { URLContext } from '..'
 
-library.add( faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt, faPrint )
+library.add( faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt, faPrint, faSortNumericDown, faSortNumericUp, faSort )
 
 function Dashboard (props) {
     const [invoices, setInvoice] = useState([])
@@ -105,7 +105,16 @@ function Dashboard (props) {
 				</div>
 			</header>
 			<main>
-				<div className='container' style={{width:"100vw"}}>
+				<div 
+					className='container' 
+					style={{ 
+						width:"100vw", 
+						display:"flex", 
+						justifyContent:"stretch", 
+						flexDirection:"column", 
+						alignItems:"center"
+					}}
+				>
 					<LoadingIndicator/>
 					{selectedInvoice ? 
 						<InvoiceDetails 
@@ -118,7 +127,7 @@ function Dashboard (props) {
 							update = { updateData }
 							isHost = { props.isHost }
 						/>
-					: null}
+					: null }
 					
 					<CreateInvoice  
 						show = { createInvoiceModalShow }
@@ -128,7 +137,7 @@ function Dashboard (props) {
 						update = { getDashBoardData }
 						username = { username["username"] }
 					/>                
-					<Accordion style={{width:"90vw"}}>
+					<Accordion style={{ width:"90vw" }}>
 						<Card>
 							<Accordion.Toggle as={Card.Header} eventKey="0">
 							Orders

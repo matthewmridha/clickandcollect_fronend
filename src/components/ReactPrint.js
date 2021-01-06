@@ -10,22 +10,22 @@ class ComponentToPrint extends React.Component {
         <div className="PrintList">
             <ul>
                 <li>
-                    <h3>Order Number :</h3> <b>{ this.props.invoice.order }</b>
+                    <b>Order Number : </b>  { this.props.invoice.order }
                 </li>
                 <li>
-                    <h3>Customer Name : </h3> <b>{ this.props.invoice.name }</b>
+                    <b>Customer Name : </b> { this.props.invoice.name }
                 </li>
                 <li>
-                    <h3>Customer Number : </h3><b>{ this.props.invoice.phone }</b>
+                    <b>Customer Number : </b>{ this.props.invoice.phone }
                 </li>
                 <li>
-                    <h3>Number of Boxes : </h3><b>{ this.props.invoice.boxes }</b>
+                    <b>Number of Boxes : </b>{ this.props.invoice.boxes }
                 </li>
                 <li>
-                    <h3>Payment Method : </h3><b>{ this.props.invoice.method }</b>
+                    <b>Payment Method : </b>{ this.props.invoice.method }
                 </li>
                 <li>
-                    <h3>COD Amount : </h3><b>{ this.props.method === "PREPAID" || "prepaid" ? "0" : this.props.invoice.amount }</b>
+                    <b>COD Amount : </b>{ this.props.invoice.method === "payment pending" ||  this.props.invoice.method === "PAYMENT PENDING" ? this.props.invoice.amount : "0" }
                 </li>
             </ul> 
             <span style={{float:"right"}}><b>BOX _____ of { this.props.invoice.boxes }</b></span>
