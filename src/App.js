@@ -45,21 +45,26 @@ function App() {
     .then(res => setUsername("username", res[0]["name"]))
     .catch(error => console.log(error))
   }
+
   useEffect(()=>{
     getUserName()
   },[]);
+
   useEffect(()=>{
     checkIfHost()
   },[]);
+
   useEffect(()=>{
     if(!authToken["auth-token"]){
       window.location.href = '/'
     }
   }, [authToken])
+
   const logout = () => {
     removeAuthToken(["auth-token"]);
     removeUsername(["username"])
   }
+
   return (
     <Dashboard token={authToken["auth-token"]} isHost={isHost} logout={logout}/>
   );

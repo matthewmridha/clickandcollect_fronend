@@ -7,16 +7,19 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 class ComponentToPrint extends React.Component {
   render() {
     return(
-        <div className="PrintList">
+        <div className="PrintList" style={{ color : "#0082C3" }}>
             <ul>
+                <li>
+                <img style={{ display:"block", marginLeft: "auto", marginRight: "auto", width:"500px", height: "auto", maxWidth: "70vw"}} src="https://www.decathlon.com.bd/pub/media/logomobile/default/deca_logo.jpg"/>
+                </li>
+                <li>
+                    <hr></hr>
+                </li>
                 <li>
                     <b>Order Number : </b>  { this.props.invoice.order }
                 </li>
                 <li>
                     <b>Customer Name : </b> { this.props.invoice.name }
-                </li>
-                <li>
-                    <b>Customer Number : </b>{ this.props.invoice.phone }
                 </li>
                 <li>
                     <b>Number of Boxes : </b>{ this.props.invoice.boxes }
@@ -25,10 +28,15 @@ class ComponentToPrint extends React.Component {
                     <b>Payment Method : </b>{ this.props.invoice.method }
                 </li>
                 <li>
-                    <b>COD Amount : </b>{ this.props.invoice.method === "payment pending" ||  this.props.invoice.method === "PAYMENT PENDING" || this.props.invoice.method === "PENDING PAYMENT" || this.props.invoice.method === "pending payment"? this.props.invoice.amount : "0" }
+                    <b>COD Amount : </b>{ this.props.invoice.method === "PREPAID" ? "0" : this.props.invoice.amount }
+                </li>
+                <li>
+                    <b>Pick Up Point : </b>{ this.props.invoice.collection_point }
                 </li>
             </ul> 
-            <span style={{float:"right"}}><b>BOX _____ of { this.props.invoice.boxes }</b></span>
+            <div style={{ width: "100%", display: "flex", justifyContent: "center", alignItems: "center"}}><h1 style={{ display:"block", marginLeft: "auto", marginRight: "auto" }}>www.decathlon.com.bd</h1></div>
+            <div><span style={{ float:"right" }}><b>BOX _____ of { this.props.invoice.boxes }</b></span></div>
+            
         </div>
     )
   }

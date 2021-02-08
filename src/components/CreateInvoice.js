@@ -7,32 +7,45 @@ import { useCookies } from 'react-cookie'
 import { URLContext } from '..'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-function CreateInvoice(props) {
+function CreateInvoice( props ) {
 
-  const [authToken] = useCookies(["auth-token"])
-  const token = authToken["auth-token"]
-  const APIURL = useContext(URLContext) 
+  const [ authToken ] = useCookies( [ "auth-token" ] )
+  const token = authToken[ "auth-token" ]
+  const APIURL = useContext( URLContext ) 
 
-  const [orderNumber, setOrderNumber] = useState( "" )
-  const [customerName, setCustomerName] = useState( "" )
-  const [customerEmail, setCustomerEmail] = useState( "" )
-  const [customerPhone, setCustomerPhone] = useState( "" )
-  const [destination, setDestination] = useState( "" )
-  const [itemInput, setItemInput] = useState( "" )
-  const [products, setProducts] = useState([])
-  const [matchedBarcode, setMatchedBarcode] = useState( false )
-  const [quantityInput, setQuantityInput] = useState( 1 )
-  const [tempIndex, settempIndex] = useState()
-  const [paymentMethod, setPaymentMethod] = useState( "PAYMENT PENDING" )
-  const [showAlert, setShowAlert] = useState( false )
-  const [alertHeader, setAlertHeader] = useState( "" )
-  const [alertMessage, setAlertMessage] = useState( "" )
-  const [discountInput, setDiscountInput] = useState( "0" )
-  const [boxes, setBoxes] = useState( "1" )
-  const [invoiceDiscount, setInvoiceDiscount] = useState( "0" )
+  const [ orderNumber, setOrderNumber ] = useState( "" )
+  const [ customerName, setCustomerName ] = useState( "" )
+  const [ customerEmail, setCustomerEmail ] = useState( "" )
+  const [ customerPhone, setCustomerPhone ] = useState( "" )
+  const [ destination, setDestination ] = useState( "" )
+  const [ itemInput, setItemInput ] = useState( "" )
+  const [ products, setProducts ] = useState( [] )
+  const [ matchedBarcode, setMatchedBarcode ] = useState( false )
+  const [ quantityInput, setQuantityInput ] = useState( 1 )
+  const [ tempIndex, settempIndex ] = useState()
+  const [ paymentMethod, setPaymentMethod ] = useState( "PAYMENT PENDING" )
+  const [ showAlert, setShowAlert ] = useState( false )
+  const [ alertHeader, setAlertHeader ] = useState( "" )
+  const [ alertMessage, setAlertMessage ] = useState( "" )
+  const [ discountInput, setDiscountInput ] = useState( "0" )
+  const [ boxes, setBoxes ] = useState( "1" )
+  const [ invoiceDiscount, setInvoiceDiscount ] = useState( "0" )
+  const [ total, setTotal ] = useState( "0" )
+  const [ invoiced, setInvoiced ] = useState( "0" )
   
   const changeInput = ( e, targetState ) => {
-    targetState( e.target.value )
+    targetState( e.target.value );
+  }
+
+  const changeInvoiceDiscount = ( e ) => {
+    if( parseInt( e.target.value)  === NaN || e.target.value.length < 1 ){
+      setInvoiceDiscount( "0" );
+    }else{
+      setInvoiceDiscount( e.target.value );
+    }
+    console.log( invoiceDiscount )
+    let temp_invoiced_total = parseFloat( total ) - parseFloat( invoiceDiscount )
+    setInvoiced( total - temp_invoiced_total )
   }
   
   const changeDestination = ( e ) => {
@@ -67,22 +80,25 @@ function CreateInvoice(props) {
     setCustomerPhone("")
     setDestination("")
     setBoxes("1")
-    setPaymentMethod("PAYMENT PENDING")
+    setPaymentMethod("PENDING PAYMENT")
     setInvoiceDiscount("0")
+    setTotal("0")
   }
   
   const addItemToList = () => {
     for(let i = 0; i < products.length; i++){
       if(products[i]['barcode'] === itemInput){
-        products[i]["quantity"] += parseInt(quantityInput)
+        products[i]["quantity"] += parseInt( quantityInput )
         clearAndUpdateList()
         return
       }
     }
     let description = props.items[tempIndex]["description"]
-    let price = parseFloat(props.items[tempIndex]["price"]) - (parseFloat(discountInput) || 0)
-    let itemToBeAdded = {barcode: itemInput, description: description, quantity: quantityInput, price:price}
-    setProducts([...products, itemToBeAdded])
+    let price = parseFloat( props.items[tempIndex]["price"] ) - ( parseFloat( discountInput ) )
+    let itemToBeAdded = { barcode: itemInput, description: description, quantity: quantityInput, price:price }
+    setProducts( [...products, itemToBeAdded] )
+    let temp_total = parseFloat(total) + (price * quantityInput)
+    setTotal(temp_total)
     clearAndUpdateList()
   }
 
@@ -96,13 +112,16 @@ function CreateInvoice(props) {
     let tempProductsArray = [...products]
     for( let i = 0; i < tempProductsArray.length; i++ ){
       if ( tempProductsArray[i].barcode === barcode ){
+        let temp_product = tempProductsArray[i]
+        let temp_total = parseFloat( total ) - parseFloat(temp_product.price) * parseFloat(temp_product.quantity)
+        setTotal(temp_total)
         tempProductsArray.splice( i, 1 )
       }
     }
     setProducts( tempProductsArray )
   }
 
-  const handleSubmit = (e) => {
+  const handleSubmit = ( e ) => {
     e.preventDefault();
     if(products.length > 0){
       trackPromise(
@@ -129,7 +148,7 @@ function CreateInvoice(props) {
           if( res.status === 200 ){
             alert(`Invoice ${orderNumber} Created`);
             props.update();
-            setProducts([]);
+            setProducts( [] );
           }
           res = res.json();
         })
@@ -148,7 +167,6 @@ function CreateInvoice(props) {
                           alertMessage={alertMessage}
                           />
         : null }
-        <LoadingIndicator />              
         <Modal
             {...props}
             size="lg"
@@ -203,7 +221,7 @@ function CreateInvoice(props) {
                               required
                 >
                   <option value=""></option>
-                  {props.profiles && props.profiles.filter( profile => {
+                  { props.profiles && props.profiles.filter( profile => {
                     return profile.name !== props.username 
                   }).map( profile => {
                     return (
@@ -219,8 +237,8 @@ function CreateInvoice(props) {
                               value={paymentMethod}
                               required
                 >
-                  <option value="PREPAID">Prepaid</option>
-                  <option value="PAYMENT PENDING">Payment Pending</option>
+                  <option value="PREPAID">PREPAID</option>
+                  <option value="PENDING PAYMENT">PENDING PAYMENT</option>
                 </Form.Control>
               </Form.Group>
               <Form.Group controlId="boxesInput">
@@ -305,7 +323,7 @@ function CreateInvoice(props) {
                             {product.quantity}
                           </td>
                           <td>
-                            {Math.round((parseFloat(product.price) * parseFloat(product.quantity))*100)/100 }
+                            { parseFloat(parseFloat(product.price) * parseFloat(product.quantity)).toFixed(2) }
                           </td>
                           <td>
                           <FontAwesomeIcon icon='trash-alt' onClick={()=>{removeitem(product.barcode)}}/>
@@ -313,13 +331,25 @@ function CreateInvoice(props) {
                         </tr>
                       )
                     })}
+                    <tr>
+                      <td>Total</td>
+                      <td></td>
+                      <td></td>
+                      <td>{ parseFloat(total).toFixed(2) }</td>
+                    </tr>
+                    <tr>
+                      <td>Invoiced</td>
+                      <td></td>
+                      <td></td>
+                      <td>{ parseInt( invoiceDiscount ) > 0 ? parseFloat( total ) - parseFloat( invoiceDiscount ).toFixed(2) : parseFloat( total ).toFixed(2) }</td>
+                    </tr>
                   </tbody>
               </Table>
               <Form.Group controlId="InvoiceDiscountInput">
                 <Form.Label>Invoice Discount</Form.Label>
                 <Form.Control type="number" 
-                              onChange={e=>changeInput(e, setInvoiceDiscount)} 
-                              value={invoiceDiscount}
+                              onChange={ e => changeInvoiceDiscount( e ) } 
+                              value={ invoiceDiscount }
                               required
                               min="0"
                 />
@@ -327,7 +357,7 @@ function CreateInvoice(props) {
               <Button variant="primary" 
                       size="lg" 
                       block>
-                <input className="btn btn-block btn-priamry" type="submit" value="Create Order" style={{color:"white"}}></input>
+                <input className="btn btn-block btn-priamry" type="submit" value="Create Order" style={{ color:"white" }}></input>
               </Button>
             </Form>
           </Modal.Body>

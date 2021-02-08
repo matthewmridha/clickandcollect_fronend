@@ -15,10 +15,10 @@ const LoadingIndicator = props => {
                 justifyContent: "center",
                 alignItems: "center",
                 position: "absolute",
-                zIndex: "10000"
+                zIndex: "100000000000"
             }}
         >
-            <Loader type="ThreeDots" color="#2BAD60" height="100" width="100" />
+            <Loader type="ThreeDots" color="#0082C3" height="100" width="100" />
         </div>
     );  
    }

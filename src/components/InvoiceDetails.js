@@ -27,8 +27,12 @@ function InvoiceDetails( props ) {
     const [ confirmMessage, setConfirmMessage ] = useState( "" );
     const [ removeId, setRemoveId ] = useState();
     const [ removeItemQuantity, setRemoveItemQuantity ] = useState( "" );
-    
-    
+    const [ editInfo, setEditInfo ] = useState( "" );
+    const [ editCollection_Point, setEditCollectionPoint ] = useState( props.invoice.collection_point )
+    const [ editCustomerName, setEditCustomerName ] = useState( props.invoice.customer_name )
+    const [ editCustomerEmail, setEditCustomerEmail ] = useState( props.invoice.customer_email )
+    const [ editCustomerPhone, setEditCustomerPhone ] = useState( props.invoice.customer_phone )
+    const [ editPaymentMethod, setEditPaymentMethod ] = useState( props.invoice.payment_method )
         
     useEffect( () => {
         let total = props.products && props.products.map( product => {
@@ -48,9 +52,64 @@ function InvoiceDetails( props ) {
         setSelectCancel( !selectCancel )
     };
 
+    const changeDestination = ( e ) => {
+        setEditCollectionPoint( e.target.value )
+    };
+
+    const changePaymentMethod = ( e ) => {
+        setEditPaymentMethod( e.target.value )
+    };
+
     const handleConfirmClose = () => setConfirmShow( false );
+
     const handleConfirmShow = () => setConfirmShow( true );
       
+    const toggleEditInfo = () => {
+        setEditInfo( !editInfo );
+        props.data();
+        if( !editInfo ){
+            setEditCollectionPoint( props.invoice.collection_point )
+            setEditCustomerName( props.invoice.customer_name )
+            setEditCustomerPhone( props.invoice.customer_phone )
+            setEditCustomerEmail( props.invoice.customer_email )
+            setEditPaymentMethod( props.invoice.payment_method )
+        }
+    };
+
+    const saveChanges = () => {
+        fetch( `${ APIURL.URL }/editinfo/edit_info/`,{
+            method : "POST",
+            headers : {
+                "Content-Type" : "application/json",
+                'Accept': 'application/json',
+                "Authorization" : `Token ${ token }`
+            },
+            body : JSON.stringify({
+                invoice : props.invoice.order_number,
+                newCollectionPoint : editCollection_Point,
+                newCustomerName : editCustomerName,
+                newCustomerPhone : editCustomerPhone,
+                newcustomeremail : editCustomerEmail,
+                newPaymentMethod : editPaymentMethod
+            })
+        })
+        .then(( res )=>{
+            if( res.status === 200 ) {
+                alert("Invoice Updated")
+                props.close();
+                toggleEditInfo();
+            }
+            else{
+                alert(`error ${res.status}`)
+            }
+        })
+        .catch( err => alert( err ) )
+    
+    }
+
+    const changeInput = ( e, targetState ) => {
+        targetState( e.target.value );
+    };
 
     const changeStatus = ( status ) => {
         const orderNumber = props.invoice.order_number
@@ -124,7 +183,6 @@ function InvoiceDetails( props ) {
             .catch( err => alert( err ) )
         }
         return
-        
     }
     
     if ( props.invoice !== null && props.invoice !== undefined ){
@@ -153,25 +211,59 @@ function InvoiceDetails( props ) {
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
                                     <b>Collection Point :</b>
-                                    { props.invoice.collection_point }
+                                    { editInfo ? 
+                                    <select 
+                                        onChange={ e => changeDestination( e ) } 
+                                        value={ editCollection_Point }
+                                    >
+                                        { props.profiles && props.profiles.filter( profile => {
+                                            return profile.name !== props.username 
+                                        }).map( profile => {
+                                            return (
+                                            <option key={profile.id} value={profile.name}>{profile.name}</option>
+                                            )
+                                    })}
+                                    </select>
+                                    : 
+                                    props.invoice.collection_point }
                                 </div>
                             </ListGroupItem>
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                     <b>Customer Name :</b>
-                                    { props.invoice.customer_name }
-                                </div>
+                                    { editInfo ? 
+                                    <input type="text" 
+                                    onChange={ e => changeInput( e, setEditCustomerName )} 
+                                    value={ editCustomerName}
+                                    required />
+                                    :
+                                    props.invoice.customer_name
+                                    }
+                            </div>
                         </ListGroupItem>
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
                                     <b>Customer Email :</b> 
-                                    { props.invoice.customer_email }
+                                    { editInfo ? 
+                                    <input type="text" 
+                                    onChange={ e => changeInput( e, setEditCustomerEmail )} 
+                                    value={ editCustomerEmail }
+                                    required />
+                                    :
+                                    props.invoice.customer_email 
+                                    }
                                 </div>
                         </ListGroupItem>
                         <ListGroupItem>
                                 <div className="invoiceDetailsRow">
                                     <b>Customer Phone :</b> 
-                                    { props.invoice.customer_phone }
+                                    { editInfo ? 
+                                    <input type="text" 
+                                    onChange={ e => changeInput( e, setEditCustomerPhone )} 
+                                    value={ editCustomerPhone }
+                                    required />
+                                    :
+                                    props.invoice.customer_phone }
                                 </div>
                         </ListGroupItem>
                         <ListGroupItem>
@@ -195,7 +287,16 @@ function InvoiceDetails( props ) {
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Payment Method :</b> 
-                                { props.invoice.payment_method.toUpperCase() }
+                                { editInfo?
+                                <select
+                                    onChange = { e => changePaymentMethod ( e ) }
+                                    value = { editPaymentMethod }>
+                                    <option value="PREPAID">PREPAID</option>
+                                    <option value="PENDING PAYMENT">PENDING PAYMENT</option>
+                                </select>
+                                :
+                                props.invoice.payment_method.toUpperCase() 
+                                }
                             </div>
                         </ListGroupItem>
                         <ListGroupItem>
@@ -300,6 +401,28 @@ function InvoiceDetails( props ) {
                                     : null 
                                     }
                                     <td>
+                                        <b>Discount</b>
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+
+                                    </td>
+                                    <td>
+                                        { props.invoice ? parseFloat( total - props.invoice.invoiced_amount ).toFixed( 2 ) : "0.00" }
+                                    </td>
+                                </tr>
+                                <tr>
+                                    {
+                                    selectCancel ?
+                                    <td> </td> 
+                                    : null 
+                                    }
+                                    <td>
                                         <b>Total</b>
                                     </td>
                                     <td>
@@ -312,7 +435,7 @@ function InvoiceDetails( props ) {
 
                                     </td>
                                     <td>
-                                        { (parseFloat( total ).toFixed( 2 ) || 0.00 )}
+                                        { props.invoice ? parseFloat( props.invoice.invoiced_amount ).toFixed( 2 ) : "0.00" }
                                     </td>
                                 </tr>
                             </tbody>
@@ -334,7 +457,7 @@ function InvoiceDetails( props ) {
                         </Col>
                         <Col>
                             {
-                            props.invoice.status === "READY FOR DELIVERY" ? 
+                            props.invoice.status === "READY FOR DELIVERY" && !props.isHost? 
                                 <Button 
                                     variant = "success"  
                                     onClick = { () => changeStatus( "DELIVERED" ) }
@@ -346,7 +469,7 @@ function InvoiceDetails( props ) {
                         </Col>
                         <Col>
                             {
-                            props.invoice.status === "READY FOR DELIVERY" ? 
+                            props.invoice.status === "READY FOR DELIVERY" && !props.isHost || props.invoice.status === "PROCESSING" && props.isHost ? 
                                 <Button 
                                     variant = "warning" 
                                     onClick = { selectPartial }
@@ -356,8 +479,31 @@ function InvoiceDetails( props ) {
                             : null
                             }
                         </Col>
+                        { props.isHost && props.invoice.status === "PROCESSING" ?
                         <Col>
-                            {props.invoice.status === "READY FOR DELIVERY"  || (props.isHost && props.invoice.status === "PROCESSING") ? 
+                            <Button 
+                                variant = "warning" 
+                                onClick = { toggleEditInfo }
+                            >
+                                Edit Info
+                            </Button>
+                        </Col>
+                        : null
+                        }
+                        { editInfo ? 
+                        <Col>
+                        <Button 
+                            variant = "warning" 
+                            onClick = { saveChanges }
+                        >
+                            Update Edit
+                        </Button>
+                        </Col>
+                        :
+                        null
+                        }
+                        <Col>
+                            { props.invoice.status === "READY FOR DELIVERY"  || ( props.isHost && props.invoice.status === "PROCESSING" ) ? 
                                 <Button 
                                     variant = "danger"  
                                     onClick = { () => changeStatus( "CANCELLED" ) }

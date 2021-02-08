@@ -16,28 +16,35 @@ import { URLContext } from '..'
 
 library.add( faCheckSquare, faFilter, faSignOutAlt, faSearch, faTrashAlt, faPrint, faSortNumericDown, faSortNumericUp, faSort )
 
-function Dashboard (props) {
-    const [invoices, setInvoice] = useState([])
-    const [selectedInvoice, setSelectedInvoice] = useState(null)
-	const [createInvoiceModalShow, setCreateInvoiceModalShow] = useState(false);
-	const [detailInvoiceModalShow, setDetailInvoiceModalShow] = useState(false);
-	const [items, setItems] = useState([])
-	const [profiles, setProfiles] = useState([])
-	const [username] = useCookies(["username"])
-	const [products, setProducts] = useState([])
-	const APIURL = useContext(URLContext)
+function Dashboard ( props ) {
+    const [ invoices, setInvoice ] = useState( [] );
+    const [ selectedInvoice, setSelectedInvoice ] = useState( null );
+	const [ invoiceToEdit, setInvoiceToEdit ] = useState( null )
+	const [ createInvoiceModalShow, setCreateInvoiceModalShow ] = useState( false );
+	const [ detailInvoiceModalShow, setDetailInvoiceModalShow ] = useState( false );
+	const [ destinationFilter, setDestinationFilter ] = useState( [] );
+	const [ items, setItems ] = useState( [] );
+	const [ profiles, setProfiles ] = useState( [] );
+	const [ username ] = useCookies( ["username"] );
+	const [ products, setProducts ] = useState( [] );
+	const APIURL = useContext( URLContext )
 	
 	useEffect( () => {
 		getDashBoardData()
 	}, [] );
 
+	useEffect( () => {
+		fetchProfiles()
+	}, [] );
+
 	const getDashBoardData = () => {
         trackPromise(
-          fetch( `${APIURL.URL}/dashboard/`, {
+          fetch( 
+			`${APIURL.URL}/dashboard/`, {
             method : "GET",
             headers : {
               "Content-Type" : "application/json",
-              'Accept': 'application/json',
+              "Accept": "application/json",
               "Authorization" : `Token ${props.token}` 
             }
           })
@@ -74,7 +81,12 @@ function Dashboard (props) {
 	}
 
 	const openCreateInvoice = () => {
-        fetch( `${ APIURL.URL }/invoice/`,{
+        getItemProfileData();
+        setCreateInvoiceModalShow( true );
+	}
+
+	const getItemProfileData = () =>{
+		fetch( `${ APIURL.URL }/invoice/`,{
             method : "GET",
             headers : {
               "Content-Type" : "application/json",
@@ -87,16 +99,36 @@ function Dashboard (props) {
           setItems( res.Item )
           setProfiles( res.Profile )
         })
-        .then( setCreateInvoiceModalShow( true ) )
 	}
-	
-	
-    return(
+
+	const fetchProfiles = () => {
+		fetch( 
+			`${APIURL.URL}/profileList/`, {
+			method : "GET",
+			headers : {
+			  "Content-Type" : "application/json",
+			  "Accept": "application/json",
+			  "Authorization" : `Token ${ props.token }` 
+			}
+		})
+		.then( res => res.json() )
+		.then( res => {
+			let names = [];
+			for( let i = 0; i < res.length; i++ ) {
+				names.push( res[i]["name"])
+			}
+			setDestinationFilter( names )
+		})
+		.catch( error => alert( error ) )
+        
+	}
+	return(
         <div className="App">
 			<header className="App-header" >
-				<div style={{display:"flex", flexDirection:"column", justifyContent:"center", width:"100%", alignItems:"center"}}>
+				<div style={{display:"flex", flexDirection:"column", justifyContent:"start", width:"100%", alignItems:"center"}}>
+					<img style={{ width:"150px", height: "auto", maxWidth: "70vw"}} src="https://www.decathlon.com.bd/pub/media/logomobile/default/deca_logo.jpg"/>
 					<h3>
-						Decathlon Sports Bangladesh C&C
+						<b>Click & Collect</b>
 					</h3>
 					<div style={{display:"flex",flexDirection:"row", justifyContent:"space-between", width:"100%"}}>
 						<div>{username["username"]}</div>
@@ -115,7 +147,7 @@ function Dashboard (props) {
 						alignItems:"center"
 					}}
 				>
-					<LoadingIndicator/>
+					<LoadingIndicator />
 					{selectedInvoice ? 
 						<InvoiceDetails 
 							show = { detailInvoiceModalShow }
@@ -124,8 +156,11 @@ function Dashboard (props) {
 							invoice = { selectedInvoice } 
 							products = { products }
 							items = { items }
+							profiles = { profiles }
 							update = { updateData }
 							isHost = { props.isHost }
+							username = { username["username"] }
+							data = { getItemProfileData }
 						/>
 					: null }
 					
@@ -147,6 +182,8 @@ function Dashboard (props) {
 								<InvoiceList 	invoices={invoices} 
 												invoiceClicked={invoiceClicked}
 												isHost={props.isHost}
+												destinationFilter = { destinationFilter }
+												username = { username["username"] }
 								/>
 								</Card.Body>
 							</Accordion.Collapse>
@@ -182,15 +219,15 @@ function Dashboard (props) {
 							</Accordion.Collapse>
 						</Card>
 					</Accordion>
-					{props.isHost === true ? 
+					{ props.isHost === true ? 
 					<div>
-						<Button variant="primary" 
-								size="lg" 
+						<Button size="lg"
 								block onClick={openCreateInvoice}
+								style={{ backgroundColor: "#0082C3", marginTop : "10px" }}
 								>Create Invoice
 						</Button>{" "}
 					</div>
-					: null}
+					: null }
 				</div>
 			</main>
     	</div>

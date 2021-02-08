@@ -114,7 +114,7 @@ const Auth = () => {
     
     return(
         <div  style={{display: "flex", alignItems:"center",justifyContent:"center", height:"100vh"}}>
-            <LoadingIndicator/>
+            <LoadingIndicator />
             <Card>
                 <Card.Body>
                     <Card.Title>Login</Card.Title>
@@ -137,7 +137,7 @@ const Auth = () => {
                                             required
                             />
                         </Form.Group>
-                        <input type="submit" className="btn btn-primary btn-block" value="Login"/>
+                        <input style={{ marginTop: "10px", marginBottom: "10px" }} type="submit" className="btn btn-primary btn-block" value="Login"/>
                     </Form>
                     <Button variant="secondary" onClick={passwordResetEmail} block>Forgot Passord</Button>
                     {passwordResetEmailInput ?

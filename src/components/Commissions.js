@@ -89,13 +89,13 @@ function Commission ( props ) {
                             { row.profile }
                         </td>
                         <td>
-                            { row.commission_made }
+                            { parseInt(row.commission_made) }
                         </td>
                         <td>
-                            { row.commission_paid }
+                            { parseInt(row.commission_paid) }
                         </td>
                         <td>
-                            { row.commission_due }
+                            { parseInt(row.commission_due) }
                         </td>
                     </tr>
                 )
