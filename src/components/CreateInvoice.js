@@ -23,7 +23,7 @@ function CreateInvoice( props ) {
   const [ matchedBarcode, setMatchedBarcode ] = useState( false )
   const [ quantityInput, setQuantityInput ] = useState( 1 )
   const [ tempIndex, settempIndex ] = useState()
-  const [ paymentMethod, setPaymentMethod ] = useState( "PAYMENT PENDING" )
+  const [ paymentMethod, setPaymentMethod ] = useState( "PENDING PAYMENT" )
   const [ showAlert, setShowAlert ] = useState( false )
   const [ alertHeader, setAlertHeader ] = useState( "" )
   const [ alertMessage, setAlertMessage ] = useState( "" )
@@ -179,12 +179,13 @@ function CreateInvoice( props ) {
             </Modal.Title>
           </Modal.Header>
           <Modal.Body>
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} onKeyPress={(e)=>{e.target.keyCode === 13 && e.preventDefault();}}>
               <Form.Group controlId="orderNumberInput">
                 <Form.Label>Order Number</Form.Label>
                 <Form.Control type="text" 
                               onChange={e=>changeInput(e, setOrderNumber)} 
                               value={orderNumber}
+                              onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}}
                               required
                 />
               </Form.Group>
@@ -193,6 +194,7 @@ function CreateInvoice( props ) {
                 <Form.Control type="text" 
                               onChange={e=>changeInput(e, setCustomerName)} 
                               value={customerName}
+                              onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}}
                               required
                 />
               </Form.Group>
@@ -201,6 +203,7 @@ function CreateInvoice( props ) {
                 <Form.Control type="email" 
                               onChange={e=>changeInput(e, setCustomerEmail)} 
                               value={customerEmail}
+                              onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}}
                               required
                 />
               </Form.Group>
@@ -210,6 +213,7 @@ function CreateInvoice( props ) {
                               onChange={e=>changeInput(e, setCustomerPhone)} 
                               value={customerPhone}
                               required
+                              onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}}
                               min="0"
                 />
               </Form.Group>
@@ -218,6 +222,7 @@ function CreateInvoice( props ) {
                 <Form.Control as="select" 
                               onChange={e=>changeDestination(e)} 
                               value={destination}
+                              onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}}
                               required
                 >
                   <option value=""></option>
@@ -233,7 +238,7 @@ function CreateInvoice( props ) {
               <Form.Group controlId="paymentMethod">
                 <Form.Label>Payment</Form.Label>
                 <Form.Control as="select" 
-                              onChange={e=>setPaymentMethod(e.target.value)} 
+                              onChange={e=>{setPaymentMethod(e.target.value); console.log(paymentMethod)}} 
                               value={paymentMethod}
                               required
                 >
@@ -247,6 +252,7 @@ function CreateInvoice( props ) {
                               onChange={e=>changeInput(e, setBoxes)} 
                               value={boxes}
                               min="0"
+                              onKeyPress={(e)=>{e.key === 'Enter' && e.preventDefault();}}
                               required
                 />
               </Form.Group>
@@ -258,6 +264,14 @@ function CreateInvoice( props ) {
                                   type="text" 
                                   onKeyUp={e=> checkItemCode(e)}
                                   onChange={e=>changeInput(e, setItemInput)} 
+                                  onKeyPress={(e)=>{
+                                    if(e.key === 'Enter'){
+                                      e.preventDefault();
+                                      if(matchedBarcode){
+                                        addItemToList();
+                                      }
+                                    }}
+                                  }
                                   value={itemInput}
                     />
                   </Col>

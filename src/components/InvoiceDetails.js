@@ -56,10 +56,6 @@ function InvoiceDetails( props ) {
         setEditCollectionPoint( e.target.value )
     };
 
-    const changePaymentMethod = ( e ) => {
-        setEditPaymentMethod( e.target.value )
-    };
-
     const handleConfirmClose = () => setConfirmShow( false );
 
     const handleConfirmShow = () => setConfirmShow( true );
@@ -287,9 +283,9 @@ function InvoiceDetails( props ) {
                         <ListGroupItem>
                             <div className="invoiceDetailsRow">
                                 <b>Payment Method :</b> 
-                                { editInfo?
+                                { editInfo ?
                                 <select
-                                    onChange = { e => changePaymentMethod ( e ) }
+                                    onChange = { e => setEditPaymentMethod( e.target.value ) }
                                     value = { editPaymentMethod }>
                                     <option value="PREPAID">PREPAID</option>
                                     <option value="PENDING PAYMENT">PENDING PAYMENT</option>
