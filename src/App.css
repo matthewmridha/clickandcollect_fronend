@@ -51,10 +51,20 @@
 
 .PrintList{
   padding: 20px;
+  overflow-wrap: break-word;
 }
 .PrintList > ul {
   list-style-type:none;
   font-size: 2.5rem
+}
+
+#printLogo{
+  display: block;
+  margin-left: auto;
+  margin-right: auto; 
+  width: 500px; 
+  height: auto; 
+  max-width: 50vw
 }
 
 .filter-input{
@@ -79,5 +89,10 @@
     flex-direction: column;
     align-items: flex-start;
   }
-  
+  #printLogo{
+    width: 300px;
+  }
+  .PrintList > ul{
+    font-size: 1.5rem;
+  }
 }

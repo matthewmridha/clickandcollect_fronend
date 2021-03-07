@@ -161,6 +161,8 @@ function Dashboard ( props ) {
 							isHost = { props.isHost }
 							username = { username["username"] }
 							data = { getItemProfileData }
+							updateData = { updateData }
+							
 						/>
 					: null }
 					

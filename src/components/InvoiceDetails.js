@@ -99,6 +99,7 @@ function InvoiceDetails( props ) {
                 alert(`error ${res.status}`)
             }
         })
+        .then(props.updateData())
         .catch( err => alert( err ) )
     
     }

@@ -10,7 +10,7 @@ class ComponentToPrint extends React.Component {
         <div className="PrintList" style={{ color : "#0082C3" }}>
             <ul>
                 <li>
-                <img style={{ display:"block", marginLeft: "auto", marginRight: "auto", width:"500px", height: "auto", maxWidth: "70vw"}} src="https://www.decathlon.com.bd/pub/media/logomobile/default/deca_logo.jpg"/>
+                <img id="printLogo" src="https://www.decathlon.com.bd/pub/media/logomobile/default/deca_logo.jpg"/>
                 </li>
                 <li>
                     <hr></hr>

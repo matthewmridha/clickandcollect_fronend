@@ -82,7 +82,7 @@ function InvoiceList( props ){
                 overflowX : "scroll", 
                 maxHeight : "50vh", 
                 overflowY : "scroll",
-                padding : "10px",
+                padding : "50px",
             }}>
                
             <div 
@@ -283,9 +283,11 @@ function InvoiceList( props ){
                                                 invoice.invoiced_amount,
                                             ) 
                                         }
+                                        style={{ paddingLeft : "10px", paddingRight : "10px", width : "200px"}}
                                     >
                                         <FontAwesomeIcon 
                                             icon="print" 
+                                            
                                         />
                                     </td>
                                     : null }

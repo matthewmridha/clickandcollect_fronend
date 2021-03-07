@@ -11,7 +11,7 @@ export const URLContext = createContext()
 
 function Router(){
 	const URL = 'https://decathlonbangladeshcnc.herokuapp.com/api'
-	///URL = 'http://127.0.0.1:8000/api'
+	/// const URL = 'http://127.0.0.1:8000/api'
 	return (
 		<React.StrictMode>
 			<URLContext.Provider value={{URL}}>
